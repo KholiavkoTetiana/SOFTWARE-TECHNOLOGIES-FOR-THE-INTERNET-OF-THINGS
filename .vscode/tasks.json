@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "inputs": [
+    {
+      "id": "boardProfile",
+      "type": "pickString",
+      "description": "Профіль реальної плати",
+      "options": ["s2", "c3"]
+    },
+    {
+      "id": "port",
+      "type": "promptString",
+      "description": "Порт плати (Linux: /dev/ttyACM0, macOS: /dev/cu.usbmodem…, Windows: COM5)"
+    }
+  ],
+  "tasks": [
+    {
+      "label": "ПТІР: зібрати для Wokwi",
+      "type": "shell",
+      "command": "arduino-cli compile --output-dir build/wokwi .",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "ПТІР: зібрати і прошити реальну плату",
+      "type": "shell",
+      "command": "arduino-cli compile --profile ${input:boardProfile} --upload --port ${input:port} .",
+      "problemMatcher": "$gcc"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# Профілі збірки ПТІР. Версія ядра закріплена: однакова в усіх студентів.
+#   *-wokwi — для симулятора Wokwi, без суфікса — для реальної плати.
+profiles:
+  s2-wokwi:
+    notes: Wemos S2 Mini у Wokwi (Serial через UART0)
+    fqbn: esp32:esp32:lolin_s2_mini:CDCOnBoot=dis_cdc
+    platforms:
+      - platform: esp32:esp32 (3.3.12)
+        platform_index_url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+  s2:
+    notes: Wemos S2 Mini, реальна плата (Serial через USB)
+    fqbn: esp32:esp32:lolin_s2_mini
+    platforms:
+      - platform: esp32:esp32 (3.3.12)
+        platform_index_url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+  c3-wokwi:
+    notes: ESP32-C3 Super Mini у Wokwi (Serial через USB Serial/JTAG)
+    fqbn: esp32:esp32:esp32c3:CDCOnBoot=cdc
+    platforms:
+      - platform: esp32:esp32 (3.3.12)
+        platform_index_url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+  c3:
+    notes: ESP32-C3 Super Mini, реальна плата
+    fqbn: esp32:esp32:nologo_esp32c3_super_mini
+    platforms:
+      - platform: esp32:esp32 (3.3.12)
+        platform_index_url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+default_profile: s2-wokwi
