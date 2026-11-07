@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "author": "ПТІР",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-aitewinrobot-esp32c3-supermini",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {
+        "serialInterface": "USB_SERIAL_JTAG"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn",
+      "top": 340,
+      "left": -130,
+      "attrs": {
+        "color": "green",
+        "label": "BOOT (GPIO9)"
+      }
+    },
+    {
+      "type": "wokwi-tm1637-7segment",
+      "id": "disp",
+      "top": -110,
+      "left": 230,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "sens",
+      "top": 80,
+      "left": 230,
+      "attrs": {
+        "lux": "500"
+      }
+    },
+    {
+      "type": "wokwi-logic-analyzer",
+      "id": "logic",
+      "top": 460,
+      "left": 200,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [
+      "btn:1.l",
+      "esp:9",
+      "green",
+      []
+    ],
+    [
+      "btn:2.l",
+      "esp:GND",
+      "black",
+      []
+    ],
+    [
+      "disp:CLK",
+      "esp:1",
+      "green",
+      []
+    ],
+    [
+      "disp:DIO",
+      "esp:2",
+      "green",
+      []
+    ],
+    [
+      "disp:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "disp:GND",
+      "esp:GND",
+      "black",
+      []
+    ],
+    [
+      "sens:AO",
+      "esp:3",
+      "purple",
+      []
+    ],
+    [
+      "sens:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "sens:GND",
+      "esp:GND",
+      "black",
+      []
+    ],
+    [
+      "logic:D0",
+      "esp:8",
+      "blue",
+      []
+    ],
+    [
+      "logic:D1",
+      "esp:9",
+      "green",
+      []
+    ],
+    [
+      "logic:GND",
+      "esp:GND",
+      "black",
+      []
+    ]
+  ],
+  "dependencies": {}
+}
