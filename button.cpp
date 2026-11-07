@@ -37,8 +37,57 @@ static void buttonTask(void*) {
     // 2. TODO (Л1, завдання 3): автомат станів жестів CLICK / DOUBLE / LONG (+ HOLD, LONG_END для схеми 6).
     //    Діаграма станів — у методичці, п. 1.1.5. Змінні state, t, lastRepeat підготовлено для вас.
     //    Тимчасова заглушка: кожне натискання одразу вважається кліком.
-    if (down) emit(Gesture::CLICK);
-    (void)up; (void)state; (void)t; (void)lastRepeat;
+    
+    // 2. Розпізнавання CLICK, DOUBLE, LONG та повторних HOLD без блокувань.
+    switch (state) {
+      case IDLE:
+        if (down) { 
+          state = DOWN1; 
+          t = now; 
+        }
+        break;
+        
+      case DOWN1:
+        if (up) { 
+          state = WAIT2; 
+          t = now; 
+        }
+        else if (stable && (now - t >= LONG_PRESS_MS)) {
+          emit(Gesture::LONG);
+          state = HELD;
+          lastRepeat = now;
+        }
+        break;
+        
+      case WAIT2:
+        if (down && (now - t <= DOUBLE_CLICK_MS)) { 
+          state = DOWN2; 
+          t = now; 
+        }
+        else if (now - t >= DOUBLE_CLICK_MS) {
+          emit(Gesture::CLICK);
+          state = IDLE;
+        }
+        break;
+        
+      case DOWN2:
+        if (up) { 
+          emit(Gesture::DOUBLE); 
+          state = IDLE; 
+        }
+        else if (stable && (now - t >= LONG_PRESS_MS)) {
+          emit(Gesture::LONG);
+          state = HELD;
+          lastRepeat = now;
+        }
+        break;
+        
+      case HELD:
+        if (up) {
+          state = IDLE;
+        }
+        break;
+    }
 
     vTaskDelay(pdMS_TO_TICKS(POLL_MS));
   }

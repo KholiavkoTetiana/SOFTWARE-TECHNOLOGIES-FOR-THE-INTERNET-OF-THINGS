@@ -15,7 +15,7 @@ static float brightness = 100;   // %
 
 // ---------- Патерн режиму BLINK: тривалості [увімк, вимк, увімк, вимк, …], мс ----------
 // TODO (Л1, завдання 2): замініть приклад на патерн BLINK_PATTERN з вашого варіанта (таблиця патернів у методичці).
-static const uint16_t PATTERN_STEPS[] = { 500, 500 };   // приклад: рівномірне блимання 1 Гц
+static const uint16_t PATTERN_STEPS[] = { 200, 200, 200, 1000 };
 
 static void selectPattern(const uint16_t*& steps, uint8_t& count) {
   steps = PATTERN_STEPS;
@@ -49,13 +49,40 @@ static void setBrightness(float b, bool report = true) {
   if (report) Serial.printf("BRIGHT: %.0f\n", brightness);
 }
 
-// ---------- Жести → дії (схема з варіанта) ----------
+// ---------- Жести → дії (Варіант 20: Схема 2) ----------
 static void onGesture(Gesture g) {
-  if (g != Gesture::HOLD && g != Gesture::LONG_END) Serial.printf("GESTURE: %s\n", gestureName(g));
+  if (g != Gesture::HOLD && g != Gesture::LONG_END)
+    Serial.printf("GESTURE: %s\n", gestureName(g));
 
-// TODO (Л1, завдання 4): дії для CLICK / DOUBLE / LONG за схемою GESTURE_SCHEME з вашого варіанта.
-  // Тимчасово: клік вмикає і вимикає світлодіод.
-  if (g == Gesture::CLICK) setMode(mode == Mode::OFF ? Mode::ON : Mode::OFF);
+  switch (g) {
+    case Gesture::CLICK:
+      // Цикл режимів: OFF → ON → BLINK → BREATH → OFF
+      switch (mode) {
+        case Mode::OFF:    setMode(Mode::ON);     break;
+        case Mode::ON:     setMode(Mode::BLINK);  break;
+        case Mode::BLINK:  setMode(Mode::BREATH); break;
+        case Mode::BREATH: setMode(Mode::OFF);    break;
+      }
+      break;
+
+    case Gesture::DOUBLE:
+      // Збільшення яскравості на 25% по колу: 25 → 50 → 75 → 100 → 25
+      if (brightness >= 100) {
+        setBrightness(25);
+      } else {
+        setBrightness(brightness + 25);
+      }
+      break;
+
+    case Gesture::LONG:
+      // Вимкнення з будь-якого стану
+      setMode(Mode::OFF);
+      break;
+
+    case Gesture::HOLD:
+    case Gesture::LONG_END:
+      break;
+  }
 }
 
 // ---------- Команди через Serial ----------
@@ -93,9 +120,16 @@ static void pollSerial() {
   static uint8_t len = 0;
   while (Serial.available()) {
     char c = Serial.read();
-    if (c == '\r') continue;
-    if (c == '\n') { buf[len] = '\0'; handleCommand(buf); len = 0; }
-    else if (len < sizeof(buf) - 1) buf[len++] = c;
+    if (c == '\r' || c == '\n') {
+      if (len > 0) { // Виконуємо команду, лише якщо буфер не порожній
+        buf[len] = '\0'; 
+        handleCommand(buf); 
+        len = 0; 
+      }
+    }
+    else if (len < sizeof(buf) - 1) {
+      buf[len++] = c;
+    }
   }
 }
 

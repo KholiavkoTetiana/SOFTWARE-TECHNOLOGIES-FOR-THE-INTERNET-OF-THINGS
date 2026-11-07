@@ -17,7 +17,11 @@ static uint32_t duty = UINT32_MAX;      // останнє записане за�
 // Перетворення «відсоток яскравості» (0..1) → «частка заповнення ШІМ» (0..1).
 static float curve(float x) {
   x = constrain(x, 0.0f, 1.0f);
-  // TODO (Л1, завдання 2): крива BRIGHT_CURVE з вашого варіанта (формули — у методичці, п. 1.1.7).
+    // TODO (Л1, завдання 2): крива BRIGHT_CURVE з вашого варіанта (формули — у методичці, п. 1.1.7).
+  if (BRIGHT_CURVE == 4) {
+    float L = 100.0f * x;
+    return (L <= 8.0f) ? L / 903.3f : powf((L + 16.0f) / 116.0f, 3.0f);
+  }
   return x;
 }
 
@@ -65,13 +69,32 @@ void ledUpdate(uint32_t now) {
   switch (drive) {
     case Drive::STATIC:
       break;
+
     case Drive::PATTERN:
-      // TODO (Л1, завдання 2): неблокуючий програвач патерну.
+    // TODO (Л1, завдання 2): неблокуючий програвач патерну.
       //   pattern[patternIdx] — тривалість поточного кроку, мс; парні кроки — світить, непарні — пауза.
       //   Коли крок завершився (now - stepStart >= тривалість), перейти до наступного по колу.
+      
+      // Неблокуюче відтворення патерну
+      if (pattern && patternLen) {
+        if (now - stepStart >= pattern[patternIdx]) {
+          stepStart += pattern[patternIdx];
+          patternIdx = (patternIdx + 1) % patternLen;
+        }
+        writeLevel((patternIdx % 2 == 0) ? level : 0);
+      }
       break;
+
     case Drive::BREATH:
-      // TODO (Л1, завдання 2): «дихання» з періодом breathPeriod: яскравість 0 → level → 0 (трикутна хвиля).
+          // TODO (Л1, завдання 2): «дихання» з періодом breathPeriod: яскравість 0 → level → 0 (трикутна хвиля).
+      // Плавне "дихання" (трикутна хвиля)
+      if (breathPeriod) {
+        uint32_t phase = (now - breathStart) % breathPeriod;
+        float fraction = (phase < breathPeriod / 2.0f)
+          ? (2.0f * phase / breathPeriod)
+          : (2.0f * (breathPeriod - phase) / breathPeriod);
+        writeLevel(level * fraction);
+      }
       break;
   }
 }
